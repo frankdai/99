@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PLU Practice</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Produce Dept</p>
+          <h1>PLU Practice</h1>
+        </div>
+        <nav class="tabs" aria-label="App sections">
+          <button class="tab active" data-view="practice">Practice</button>
+          <button class="tab" data-view="data">Data</button>
+        </nav>
+      </header>
+
+      <section id="practice-view" class="view active" aria-labelledby="practice-title">
+        <div class="practice-layout">
+          <section class="practice-panel">
+            <div class="status-line">
+              <span id="source-status">Loading data...</span>
+              <span id="score-status">0 correct</span>
+            </div>
+            <div class="question">
+              <p id="question-label" class="eyebrow">Description</p>
+              <h2 id="description-text">Loading...</h2>
+              <p id="chinese-text" class="chinese"></p>
+            </div>
+            <form id="answer-form" class="answer-form">
+              <label for="answer-input">PLU number</label>
+              <div class="answer-row">
+                <input
+                  id="answer-input"
+                  name="answer"
+                  autocomplete="off"
+                  inputmode="text"
+                  placeholder="Type PLU"
+                />
+                <button type="submit">Check</button>
+              </div>
+            </form>
+            <div id="feedback" class="feedback" hidden></div>
+            <div class="actions">
+              <button id="next-button" type="button">Skip</button>
+              <button id="got-it-button" type="button" hidden>Got it</button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="data-view" class="view" aria-labelledby="data-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">CSV Source</p>
+            <h2 id="data-title">Loaded Rows</h2>
+          </div>
+          <div class="button-group">
+            <button id="export-csv-button" type="button">Export CSV</button>
+          </div>
+        </div>
+        <p class="muted">
+          Shared data is loaded from <code>public/data/plu.csv</code> at runtime. Update that CSV file to add or change rows for everyone.
+        </p>
+        <div class="table-wrap">
+          <table id="data-table">
+            <thead>
+              <tr>
+                <th>PLU</th>
+                <th>UoM</th>
+                <th>Description</th>
+                <th>Chinese Description</th>
+                <th>Toledo Number</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
