@@ -1,6 +1,18 @@
-const CSV_URL = "public/data/plu.csv";
+const DATASETS = {
+  practice: {
+    label: "Vegetable",
+    url: "public/data/plu.csv",
+    downloadName: "plu.csv",
+  },
+  fruit: {
+    label: "Fruit",
+    url: "public/data/fruit.csv",
+    downloadName: "fruit.csv",
+  },
+};
 
 const state = {
+  datasets: {},
   items: [],
   current: null,
   correct: 0,
@@ -22,13 +34,14 @@ const elements = {
   gotItButton: document.querySelector("#got-it-button"),
   dataBody: document.querySelector("#data-table tbody"),
   exportCsvButton: document.querySelector("#export-csv-button"),
+  dataSourcePath: document.querySelector("#data-source-path"),
 };
 
 init();
 
 async function init() {
   bindEvents();
-  state.items = await loadInitialItems();
+  await activateDataset("practice");
   renderStatus();
   renderTable();
   nextQuestion();
@@ -49,17 +62,47 @@ function bindEvents() {
   elements.exportCsvButton.addEventListener("click", exportCsv);
 }
 
-function setView(view) {
+async function setView(view) {
+  if (view === "fruit") {
+    await activateDataset("fruit");
+    view = "practice";
+    nextQuestion();
+  } else if (view === "practice") {
+    await activateDataset("practice");
+    nextQuestion();
+  }
+
   state.view = view;
-  elements.tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.view === view));
+  elements.tabs.forEach((tab) => {
+    let isActive = tab.dataset.view === view;
+    if (view === "practice") {
+      isActive =
+        (state.activeDataset === "practice" && tab.dataset.view === "practice") ||
+        (state.activeDataset === "fruit" && tab.dataset.view === "fruit");
+    }
+    tab.classList.toggle("active", isActive);
+  });
   elements.views.forEach((section) => section.classList.toggle("active", section.id === `${view}-view`));
   if (view === "data") renderTable();
 }
 
-async function loadInitialItems() {
-  const response = await fetch(`${CSV_URL}?v=${Date.now()}`, { cache: "no-store" });
+async function activateDataset(name) {
+  if (!state.datasets[name]) {
+    state.datasets[name] = await loadDataset(name);
+  }
+  state.activeDataset = name;
+  state.items = state.datasets[name];
+  state.correct = 0;
+  state.attempts = 0;
+  renderStatus();
+  renderTable();
+}
+
+async function loadDataset(name) {
+  const config = DATASETS[name];
+  const response = await fetch(`${config.url}?v=${Date.now()}`, { cache: "no-store" });
   if (!response.ok) {
-    throw new Error(`Unable to load ${CSV_URL}`);
+    throw new Error(`Unable to load ${config.url}`);
   }
   const text = await response.text();
   return rowsFromCsv(text);
@@ -69,7 +112,7 @@ function nextQuestion() {
   if (!state.items.length) {
     state.current = null;
     elements.descriptionText.textContent = "No rows available";
-    elements.chineseText.textContent = "Add rows in Data Manager.";
+    elements.chineseText.textContent = "Update the CSV file.";
     return;
   }
 
@@ -124,8 +167,12 @@ function normalizePlu(value) {
 }
 
 function renderStatus() {
-  elements.sourceStatus.textContent = `${state.items.length} rows loaded`;
+  const config = DATASETS[state.activeDataset] || DATASETS.practice;
+  elements.sourceStatus.textContent = `${config.label}: ${state.items.length} rows loaded`;
   elements.scoreStatus.textContent = `${state.correct} correct / ${state.attempts} attempts`;
+  if (elements.dataSourcePath) {
+    elements.dataSourcePath.textContent = config.url;
+  }
 }
 
 function renderTable() {
@@ -148,11 +195,12 @@ function renderTable() {
 
 function exportCsv() {
   const csv = toCsv(state.items);
+  const config = DATASETS[state.activeDataset] || DATASETS.practice;
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "plu.csv";
+  link.download = config.downloadName;
   link.click();
   URL.revokeObjectURL(url);
 }

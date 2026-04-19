@@ -15,6 +15,7 @@
         </div>
         <nav class="tabs" aria-label="App sections">
           <button class="tab active" data-view="practice">Practice</button>
+          <button class="tab" data-view="fruit">Fruit</button>
           <button class="tab" data-view="data">Data</button>
         </nav>
       </header>
@@ -64,7 +65,7 @@
           </div>
         </div>
         <p class="muted">
-          Shared data is loaded from <code>public/data/plu.csv</code> at runtime. Update that CSV file to add or change rows for everyone.
+          Shared data is loaded from <code id="data-source-path">public/data/plu.csv</code> at runtime. Update the CSV file to add or change rows for everyone.
         </p>
         <div class="table-wrap">
           <table id="data-table">
